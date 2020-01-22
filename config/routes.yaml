@@ -1,3 +1,27 @@
-#index:
-#    path: /
-#    controller: App\Controller\DefaultController::index
+index:
+    path: /
+    controller: App\Controller\BileMoController::index
+
+mobile_show_all:
+    path: /mobiles
+    controller: App\Controller\BileMoController::showMobiles
+        
+mobile_show:
+    path: /mobile/{idMobile}
+    controller: App\Controller\BileMoController::showMobile
+    requirements:
+        idMobile: '\d+'
+
+user_show:
+    path: /user/{idUser}
+    controller: App\Controller\BileMoController::showUser
+    requirements:
+        idUser: '\d+'
+   
+user_show_all:
+    path: /users
+    controller: App\Controller\BileMoController::showUsers
+        
+user_add:
+    path: /user/add
+    controller: App\Controller\BileMoController::addUser
