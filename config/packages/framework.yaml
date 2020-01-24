@@ -17,3 +17,5 @@ framework:
     
     serializer:
         enabled: true
+        
+    

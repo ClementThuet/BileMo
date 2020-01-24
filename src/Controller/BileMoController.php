@@ -5,43 +5,75 @@ use App\Entity\MobilePhone;
 use App\Entity\User;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Component\Routing\Annotation\Route;
+use FOS\RestBundle\Controller\Annotations\Get;
+use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\View;
+use FOS\RestBundle\Controller\Annotations as Rest;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\Routing\Generator\UrlGenerator;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
 
-class BileMoController extends Controller{
+class BileMoController extends AbstractFOSRestController{
    
+    /**
+     * @Route("/", name="index")
+     */
     public function index()
     {
         return new Response(
-            '<html><body>Welcome to the homepage, nothink to see for the moment</body></html>');
+            '<html><body>Welcome to BileMo\'s API !</body></html>');
     }
     
-     public function showMobiles()
+    /**
+     * @Get(
+     *     path = "/mobiles",
+     *     name = "mobile_show_all"
+     * )
+     * @Rest\View
+     */
+    public function showMobiles()
     {
         $mobiles = $this->getDoctrine()->getRepository('App:MobilePhone')->findAll();
         
-        $data = $this->get('serializer')->serialize($mobiles,'json');
+        /*$data = $this->get('serializer')->serialize($mobiles,'json');
         
         $response = new Response($data);
-        $response->headers->set('Content-Type','application/json');
-        
-        return $response;
+        $response->headers->set('Content-Type','application/json');*/
+        //dd($mobiles);
+        return $mobiles;
     }
     
+    /**
+     * @Rest\Get(
+     *     path = "/mobile/{idMobile}",
+     *     name = "mobile_show",
+     *     requirements = {"idMobile"="\d+"}
+     * )
+     * @Rest\View
+     */
     public function showMobile()
     {
+        //dd($idMobile);
+        //$mobile= $this->getDoctrine()->getRepository('App:MobilePhone')->findOneById($idMobile);
+        //dd($mobile);
         $mobile = new MobilePhone();
-        $mobile->setManufacturer("Samsung");
-        $mobile->setModelName("Galaxy S7 Edge");
-        
-        $data = $this->get('serializer')->serialize($mobile,'json');
-        
-        $response = new Response($data);
-        $response->headers->set('Content-Type','application/json');
-        
-        return $response;
+        $mobile->setModelName('Test');
+        //$mobile1=$serializer->serialize($mobile,'json');
+       // dd($mobile1);
+        return $mobile;
     }
     
+    /**
+     * @Get(
+     *     path = "/user/{idUser}",
+     *     name = "user_show",
+     *     requirements = {"idUser"="\d+"}
+     * )
+     */
     public function showUser($idUser)
     {
         $user = $this->getDoctrine()->getRepository('App:User')->findOneById($idUser);
@@ -54,6 +86,12 @@ class BileMoController extends Controller{
         return $response;
     }
     
+    /**
+     * @Get(
+     *     path = "/users",
+     *     name = "user_show_all"
+     * )
+     */
     public function showUsers()
     {
         $users = $this->getDoctrine()->getRepository('App:User')->findAll();
@@ -66,18 +104,25 @@ class BileMoController extends Controller{
         return $response;
     }
     
-    public function addUser(Request $request)
+    /**
+     * @Rest\Post(
+     *      path="/user/add",
+     *      name="user_add")
+     * @Rest\View(StatusCode = 201)
+     * @ParamConverter("user", converter="fos_rest.request_body")
+     */
+    public function addUser(User $user)
     {
-        $data = $request->getContent();
        
-        //dd($data);
-        $user = $this->get('serializer')->deserialize($data,'App\Entity\User','json');
         
         $em = $this->getDoctrine()->getManager();
+        $dateNow = new \DateTime('now');
+        $user->setRegisteredAt($dateNow);
         $em->persist($user);
         $em->flush();
-        
-        return new Response('',Response::HTTP_CREATED);
+        $view =  $this->routeRedirectView('user_show',['idUser' => $user->getId()],201);
+        return $this->handleView($view);    
+               
         
     }
 }
