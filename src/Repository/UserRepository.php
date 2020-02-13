@@ -35,16 +35,30 @@ class UserRepository extends ServiceEntityRepository
         ;
     }
     */
-
-    /*
-    public function findOneBySomeField($value): ?User
+    public function findUserById($idUser,$idClient)
     {
-        return $this->createQueryBuilder('u')
-            ->andWhere('u.exampleField = :val')
-            ->setParameter('val', $value)
+        return $this->createQueryBuilder('user')
+            ->innerJoin('user.client', 'c')
+            ->where('c.id = :idClient')
+            ->andWhere('user.id = :idUser')
+            ->setParameter('idUser', $idUser)
+            ->setParameter('idClient', $idClient)
+            ->select('user.id, user.email, user.password, user.username, user.registeredAt')
             ->getQuery()
-            ->getOneOrNullResult()
+            ->getResult()
         ;
     }
-    */
+    
+    public function findUsersByClient($idClient)
+    {
+        return $this->createQueryBuilder('user')
+            ->innerJoin('user.client', 'c')
+            ->where('c.id = :idClient')
+            ->setParameter('idClient', $idClient)
+            ->select('user.id, user.email, user.password, user.username, user.registeredAt')
+            ->getQuery()
+            ->getResult()
+        ;
+    }
+    
 }

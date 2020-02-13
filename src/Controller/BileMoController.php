@@ -1,21 +1,16 @@
 <?php
 namespace App\Controller;
 
-use App\Entity\MobilePhone;
-use App\Entity\User;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Serializer\SerializerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use FOS\RestBundle\Controller\AbstractFOSRestController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\Post;
+use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\View;
-use FOS\RestBundle\Controller\Annotations as Rest;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
-use Symfony\Component\Routing\Generator\UrlGenerator;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\Method;
+use App\Entity\User;
 
 class BileMoController extends AbstractFOSRestController{
    
@@ -28,101 +23,102 @@ class BileMoController extends AbstractFOSRestController{
             '<html><body>Welcome to BileMo\'s API !</body></html>');
     }
     
+    
     /**
      * @Get(
-     *     path = "/mobiles",
-     *     name = "mobile_show_all"
+     *     path = "/api/mobiles",
+     *     name = "mobiles_show"
      * )
-     * @Rest\View
+     * @View
      */
     public function showMobiles()
     {
         $mobiles = $this->getDoctrine()->getRepository('App:MobilePhone')->findAll();
-        
-        /*$data = $this->get('serializer')->serialize($mobiles,'json');
-        
-        $response = new Response($data);
-        $response->headers->set('Content-Type','application/json');*/
-        //dd($mobiles);
         return $mobiles;
     }
     
     /**
-     * @Rest\Get(
-     *     path = "/mobile/{idMobile}",
+     * @Get(
+     *     path = "/api/mobile/{idMobile}",
      *     name = "mobile_show",
      *     requirements = {"idMobile"="\d+"}
      * )
-     * @Rest\View
+     * @View
      */
-    public function showMobile()
+    public function showMobile($idMobile)
     {
-        //dd($idMobile);
-        //$mobile= $this->getDoctrine()->getRepository('App:MobilePhone')->findOneById($idMobile);
-        //dd($mobile);
-        $mobile = new MobilePhone();
-        $mobile->setModelName('Test');
-        //$mobile1=$serializer->serialize($mobile,'json');
-       // dd($mobile1);
+        $mobile= $this->getDoctrine()->getRepository('App:MobilePhone')->findOneById($idMobile);
         return $mobile;
     }
     
     /**
      * @Get(
-     *     path = "/user/{idUser}",
-     *     name = "user_show",
-     *     requirements = {"idUser"="\d+"}
+     *     path = "/api/users",
+     *     name = "users_client_show",
+     *     requirements = {"idClient"="\d+"}
      * )
+     * @View
      */
-    public function showUser($idUser)
+    public function showUsersClient()
     {
-        $user = $this->getDoctrine()->getRepository('App:User')->findOneById($idUser);
-        
-        $data = $this->get('serializer')->serialize($user,'json');
-        
-        $response = new Response($data);
-        $response->headers->set('Content-Type','application/json');
-        
-        return $response;
+        $users = $this->getDoctrine()->getRepository('App:User')->findUsersByClient($this->getUser()->getId());
+        return $users;
     }
     
     /**
      * @Get(
-     *     path = "/users",
-     *     name = "user_show_all"
+     *     path = "/api/user/{idUser}",
+     *     name = "user_client_show",
+     *     requirements = {"idUser"="\d+"}
      * )
+     * @View
      */
-    public function showUsers()
+    public function showUserClient($idUser)
     {
-        $users = $this->getDoctrine()->getRepository('App:User')->findAll();
-        
-        $data = $this->get('serializer')->serialize($users,'json');
-        
-        $response = new Response($data);
-        $response->headers->set('Content-Type','application/json');
-        
-        return $response;
+        $user = $this->getDoctrine()->getRepository('App:User')->findUserById($idUser,$this->getUser()->getId());
+        return $user;
     }
     
     /**
-     * @Rest\Post(
-     *      path="/user/add",
+     * @Post(
+     *      path="/api/user/add",
      *      name="user_add")
-     * @Rest\View(StatusCode = 201)
+     * @View(StatusCode = 201)
      * @ParamConverter("user", converter="fos_rest.request_body")
      */
     public function addUser(User $user)
     {
-       
         
         $em = $this->getDoctrine()->getManager();
-        $dateNow = new \DateTime('now');
-        $user->setRegisteredAt($dateNow);
+        $user->setClient($this->getUser());
+        //dd($user);
         $em->persist($user);
         $em->flush();
-        $view =  $this->routeRedirectView('user_show',['idUser' => $user->getId()],201);
+        $view =  $this->routeRedirectView('user_client_show',['idUser' => $user->getId()],201);
         return $this->handleView($view);    
-               
-        
     }
+    
+    /**
+     * @Delete(
+     *          path="/api/user/delete/{idUser}",
+     *          name="user_delete")
+     */
+    public function deleteUser($idUser)
+    {
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getDoctrine()->getRepository('App:User')->find($idUser);
+        if ($user)
+        {
+            //Check if current client own the user he wants to delete
+            if($user->getClient()->getId() == $this->getUser()->getId())
+            {
+                $em->remove($user);
+                $em->flush(); 
+                return $this->view(null, Response::HTTP_NO_CONTENT);
+            }
+            return $this->view(null, Response::HTTP_UNAUTHORIZED );
+        }
+        return $this->view(null, Response::HTTP_NOT_FOUND);
+    }
+    
 }

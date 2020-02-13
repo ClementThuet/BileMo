@@ -17,31 +17,30 @@ class User
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=100)
+     * @ORM\Column(type="string", length=100, nullable=false)
      */
     private $email;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, nullable=false)
      */
     private $password;
 
     /**
-     * @ORM\Column(type="string", length=150)
-     */
-    private $username;
-
-    /**
-     * @ORM\Column(type="datetime")
+     * @ORM\Column(type="datetime", nullable=false)
      */
     private $registeredAt;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Client", inversedBy="users")
-     * @ORM\JoinColumn(nullable=true)
+     * @ORM\JoinColumn(nullable=false)
      */
     private $client;
-
+    
+    public function __construct()
+    {
+        $this->registeredAt = new \DateTime('now');
+    }
     public function getId()
     {
         return $this->id;
@@ -71,18 +70,6 @@ class User
         return $this;
     }
 
-    public function getUsername()
-    {
-        return $this->username;
-    }
-
-    public function setUsername(string $username): self
-    {
-        $this->username = $username;
-
-        return $this;
-    }
-
     public function getRegisteredAt()
     {
         return $this->registeredAt;
@@ -95,12 +82,12 @@ class User
         return $this;
     }
 
-    public function getClient(): ?Client
+    public function getClient()
     {
         return $this->client;
     }
 
-    public function setClient(?Client $client): self
+    public function setClient(Client $client)
     {
         $this->client = $client;
 

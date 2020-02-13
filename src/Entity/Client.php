@@ -5,11 +5,12 @@ namespace App\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ClientRepository")
  */
-class Client
+class Client implements UserInterface
 {
     /**
      * @ORM\Id()
@@ -19,7 +20,7 @@ class Client
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=150)
+     * @ORM\Column(type="string", length=150, nullable=false, unique=true)
      */
     private $username;
 
@@ -29,14 +30,19 @@ class Client
     private $fullname;
 
     /**
-     * @ORM\Column(type="string", length=200)
+     * @ORM\Column(type="string", length=200, nullable=false)
      */
     private $email;
-
+    
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=50, nullable=false)
      */
-    private $token;
+    private $password;
+    
+    /**
+     * @ORM\Column(type="json")
+     */
+    private $roles = [];
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="client")
@@ -89,18 +95,6 @@ class Client
         return $this;
     }
 
-    public function getToken()
-    {
-        return $this->token;
-    }
-
-    public function setToken(string $token): self
-    {
-        $this->token = $token;
-
-        return $this;
-    }
-
     /**
      * @return Collection|User[]
      */
@@ -130,5 +124,48 @@ class Client
         }
 
         return $this;
+    }
+    
+    /**
+     * @see UserInterface
+     */
+    public function getRoles(): array
+    {
+        $roles = $this->roles;
+        // guarantee every user at least has ROLE_USER
+        $roles[] = 'ROLE_USER';
+
+        return array_unique($roles);
+    }
+
+    public function setRoles(array $roles): self
+    {
+        $this->roles = $roles;
+
+        return $this;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function getSalt()
+    {
+        return null;
+    }
+
+    /**
+     * @see UserInterface
+     */
+    public function eraseCredentials()
+    {
+        return null;
     }
 }
