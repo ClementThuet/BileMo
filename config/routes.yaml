@@ -1,18 +1,2 @@
-
-
-
-
-
-user_show:
-    path: /user/{idUser}
-    controller: App\Controller\BileMoController::showUser
-    requirements:
-        idUser: '\d+'
-   
-user_show_all:
-    path: /users
-    controller: App\Controller\BileMoController::showUsers
-        
-user_add:
-    path: /user/add
-    controller: App\Controller\BileMoController::addUser
+api_login_check:
+    path: /api/login_check
