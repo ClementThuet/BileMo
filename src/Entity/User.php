@@ -3,8 +3,10 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use OpenApi\Annotations as OA;
 
 /**
+ * @OA\Schema()
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  */
 class User
@@ -12,22 +14,26 @@ class User
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=false)
+     * @OA\Property(type="integer", nullable=false)
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=100, nullable=false)
+     * @OA\Property(type="string", nullable=false)
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
+     * @OA\Property(type="string", nullable=false)
      */
     private $password;
 
     /**
      * @ORM\Column(type="datetime", nullable=false)
+     * @OA\Property(type="string", format="date-time", nullable=false)
      */
     private $registeredAt;
 

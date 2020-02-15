@@ -11,6 +11,8 @@ use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use App\Entity\User;
+use OpenApi\Annotations as OA;
+
 
 class BileMoController extends AbstractFOSRestController{
    
@@ -23,14 +25,33 @@ class BileMoController extends AbstractFOSRestController{
             '<html><body>Welcome to BileMo\'s API !</body></html>');
     }
     
-    
     /**
+     * @OA\Get(
+     *      path="/api/mobiles",
+     *      description="Return all mobiles phones availables",
+     *      security={"bearer"},
+     *      @OA\Response(
+     *         response=200,
+     *         description="Mobiles",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/MobilePhone")
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="No mobile phones to show",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message",type="string", example="There is no mobile phone to display for the moment.")
+     *          ),
+     *      ),
+     * )
      * @Get(
      *     path = "/api/mobiles",
      *     name = "mobiles_show"
      * )
      * @View
-     */
+    */
     public function showMobiles()
     {
         $mobiles = $this->getDoctrine()->getRepository('App:MobilePhone')->findAll();
@@ -38,6 +59,33 @@ class BileMoController extends AbstractFOSRestController{
     }
     
     /**
+     * @OA\Get(
+     *      path="/api/mobile/{idMobile}",
+     *      description="Return the mobile phone whoom id is defined in parameter",
+     *      security={"bearer"},
+     *      @OA\Parameter(
+     *          name="idMobile",
+     *          in="path",
+     *          description="Id of the mobile phone wanted",
+     *          required=true,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *         response=200,
+     *         description="Mobile's informations",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/MobilePhone")
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="This mobile doesn't exist",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message",type="string", example="Can't find a mobile with this id.")
+     *          ),
+     *      ),
+     * )
      * @Get(
      *     path = "/api/mobile/{idMobile}",
      *     name = "mobile_show",
@@ -48,10 +96,34 @@ class BileMoController extends AbstractFOSRestController{
     public function showMobile($idMobile)
     {
         $mobile= $this->getDoctrine()->getRepository('App:MobilePhone')->findOneById($idMobile);
-        return $mobile;
+        if ($mobile)
+        {
+            return $mobile;
+        }
+        return $this->view(null, Response::HTTP_NOT_FOUND);
     }
     
     /**
+     * @OA\Get(
+     *      path="/api/users",
+     *      description="Return all the users you created",
+     *      security={"bearer"},
+     *      @OA\Response(
+     *         response=200,
+     *         description="List of users",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/User")
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="There is no user to show",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message",type="string", example="There is no user to show for the moment.")
+     *          ),
+     *      ),
+     * )
      * @Get(
      *     path = "/api/users",
      *     name = "users_client_show",
@@ -66,6 +138,33 @@ class BileMoController extends AbstractFOSRestController{
     }
     
     /**
+     * @OA\Get(
+     *      path="/api/user/{idUser}",
+     *      description="Return the user whoom id is defined in parameter",
+     *      security={"bearer"},
+     *      @OA\Parameter(
+     *          name="idUser",
+     *          in="path",
+     *          description="Id of the user wanted",
+     *          required=true,
+     *          @OA\Schema(type="integer")
+     *      ),
+     *      @OA\Response(
+     *         response=200,
+     *         description="User's informations",
+     *         @OA\JsonContent(
+     *             type="array",
+     *             @OA\Items(ref="#/components/schemas/User")
+     *         ),
+     *      ),
+     *      @OA\Response(
+     *          response=404,
+     *          description="This user doesn't exist",
+     *          @OA\JsonContent(
+     *              @OA\Property(property="message",type="string", example="Can't find a user with this id.")
+     *          ),
+     *      ),
+     * )
      * @Get(
      *     path = "/api/user/{idUser}",
      *     name = "user_client_show",
@@ -80,6 +179,23 @@ class BileMoController extends AbstractFOSRestController{
     }
     
     /**
+     * @OA\Post(
+     *      path="/api/user/add",
+     *      description="Create a new user with datas submit",
+     *      security={"bearer"},
+     *      @OA\RequestBody(
+     *          required=true, 
+     *          @OA\JsonContent(
+     *              required={"email","password"},
+     *              @OA\Property(type="string", property="email"),
+     *              @OA\Property(type="string", property="password"),
+     *          )
+     *      ),
+     *      @OA\Response(
+     *         response=201,
+     *         description="User created",
+     *      ),
+     * )
      * @Post(
      *      path="/api/user/add",
      *      name="user_add")
@@ -91,14 +207,38 @@ class BileMoController extends AbstractFOSRestController{
         
         $em = $this->getDoctrine()->getManager();
         $user->setClient($this->getUser());
-        //dd($user);
         $em->persist($user);
         $em->flush();
-        $view =  $this->routeRedirectView('user_client_show',['idUser' => $user->getId()],201);
-        return $this->handleView($view);    
+        return $this->view(null, Response::HTTP_CREATED);
     }
     
     /**
+     * @OA\Delete(
+     *     path="/api/user/delete/{idUser}",
+     *     summary="Deletes a user with given id",
+     *     security={"bearer"},
+     *     @OA\Parameter(
+     *         name="idUser",
+     *         in="path",
+     *         description="User id to delete",
+     *         required=true,
+     *         @OA\Schema(
+     *             type="integer",
+     *         ),
+     *     ),
+     * @OA\Response(
+     *         response=204,
+     *         description="User deleted with success",
+     *     ),
+     *     @OA\Response(
+     *         response=401,
+     *         description="You are not allowed to delete a user you didn't added",
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="User not found",
+     *     ),
+     * )
      * @Delete(
      *          path="/api/user/delete/{idUser}",
      *          name="user_delete")
@@ -109,8 +249,6 @@ class BileMoController extends AbstractFOSRestController{
         $user = $this->getDoctrine()->getRepository('App:User')->find($idUser);
         if ($user)
         {
-            //Check if current client own the user he wants to delete
-            if($user->getClient()->getId() == $this->getUser()->getId())
             {
                 $em->remove($user);
                 $em->flush(); 
