@@ -23,7 +23,8 @@
         "symfony/serializer-pack": "*",
         "symfony/translation": "4.4.*",
         "symfony/twig-bundle": "4.4.*",
-        "symfony/yaml": "4.4.*"
+        "symfony/yaml": "4.4.*",
+        "zircote/swagger-php": "^3.0"
     },
     "require-dev": {
         "symfony/maker-bundle": "^1.14"

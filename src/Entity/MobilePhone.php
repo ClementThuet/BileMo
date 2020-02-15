@@ -3,8 +3,10 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use OpenApi\Annotations as OA;
 
 /**
+ * @OA\Schema()
  * @ORM\Entity(repositoryClass="App\Repository\MobilePhoneRepository")
  */
 class MobilePhone
@@ -13,41 +15,49 @@ class MobilePhone
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @OA\Property(type="integer")
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=150)
+     * @OA\Property(type="string", nullable=true)
      */
     private $manufacturer;
     
     /**
      * @ORM\Column(type="string", length=150)
+     * @OA\Property(type="string", nullable=true)
      */
     private $modelName;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @OA\Property(type="string", nullable=true)
      */
     private $modelReference;
 
     /**
      * @ORM\Column(type="smallint")
+     * @OA\Property(type="integer", nullable=true)
      */
     private $memory;
 
     /**
      * @ORM\Column(type="string", length=150)
+     * @OA\Property(type="string", nullable=true)
      */
     private $screenDiagonalSize;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @OA\Property(type="string", nullable=true)
      */
     private $description;
 
     /**
      * @ORM\Column(type="integer")
+     * @OA\Property(type="integer", nullable=false)
      */
     private $price;
 

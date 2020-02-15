@@ -1,0 +1,326 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "BileMo's API",
+        "version": "0.1"
+    },
+    "paths": {
+        "/api/mobiles": {
+            "get": {
+                "description": "Return all mobiles phones availables",
+                "operationId": "App\\Controller\\BileMoController::showMobiles",
+                "responses": {
+                    "200": {
+                        "description": "Mobiles",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MobilePhone"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "No mobile phones to show",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "There is no mobile phone to display for the moment."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    "bearer"
+                ]
+            }
+        },
+        "/api/mobile/{idMobile}": {
+            "get": {
+                "description": "Return the mobile phone whoom id is defined in parameter",
+                "operationId": "App\\Controller\\BileMoController::showMobile",
+                "parameters": [
+                    {
+                        "name": "idMobile",
+                        "in": "path",
+                        "description": "Id of the mobile phone wanted",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Mobile's informations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/MobilePhone"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "This mobile doesn't exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Can't find a mobile with this id."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    "bearer"
+                ]
+            }
+        },
+        "/api/users": {
+            "get": {
+                "description": "Return all the users you created",
+                "operationId": "App\\Controller\\BileMoController::showUsersClient",
+                "responses": {
+                    "200": {
+                        "description": "List of users",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/User"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "There is no user to show",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "There is no user to show for the moment."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    "bearer"
+                ]
+            }
+        },
+        "/api/user/{idUser}": {
+            "get": {
+                "description": "Return the user whoom id is defined in parameter",
+                "operationId": "App\\Controller\\BileMoController::showUserClient",
+                "parameters": [
+                    {
+                        "name": "idUser",
+                        "in": "path",
+                        "description": "Id of the user wanted",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User's informations",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/User"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "This user doesn't exist",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Can't find a user with this id."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    "bearer"
+                ]
+            }
+        },
+        "/api/user/add": {
+            "post": {
+                "description": "Create a new user with datas submit",
+                "operationId": "App\\Controller\\BileMoController::addUser",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "password": {
+                                        "type": "string"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User created"
+                    }
+                },
+                "security": [
+                    "bearer"
+                ]
+            }
+        },
+        "/api/user/delete/{idUser}": {
+            "delete": {
+                "summary": "Deletes a user with given id",
+                "operationId": "App\\Controller\\BileMoController::deleteUser",
+                "parameters": [
+                    {
+                        "name": "idUser",
+                        "in": "path",
+                        "description": "User id to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "User deleted with success"
+                    },
+                    "401": {
+                        "description": "You are not allowed to delete a user you didn't added"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    "bearer"
+                ]
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "MobilePhone": {
+                "properties": {
+                    "id": {
+                        "type": "integer"
+                    },
+                    "manufacturer": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "modelName": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "modelReference": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "memory": {
+                        "type": "integer",
+                        "nullable": true
+                    },
+                    "screenDiagonalSize": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "description": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "price": {
+                        "type": "integer",
+                        "nullable": false
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "nullable": false
+                    },
+                    "email": {
+                        "type": "string",
+                        "nullable": false
+                    },
+                    "password": {
+                        "type": "string",
+                        "nullable": false
+                    },
+                    "registeredAt": {
+                        "type": "string",
+                        "format": "date-time",
+                        "nullable": false
+                    }
+                },
+                "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "bearer": {
+                "type": "apiKey",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+}
