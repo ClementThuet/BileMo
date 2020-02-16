@@ -14,97 +14,11 @@ use App\Entity\User;
 use OpenApi\Annotations as OA;
 
 
-class BileMoController extends AbstractFOSRestController{
+class UserController extends AbstractFOSRestController{
    
     /**
-     * @Route("/", name="index")
-     */
-    public function index()
-    {
-        return new Response(
-            '<html><body>Welcome to BileMo\'s API !</body></html>');
-    }
-    
-    /**
      * @OA\Get(
-     *      path="/api/mobiles",
-     *      description="Return all mobiles phones availables",
-     *      security={"bearer"},
-     *      @OA\Response(
-     *         response=200,
-     *         description="Mobiles",
-     *         @OA\JsonContent(
-     *             type="array",
-     *             @OA\Items(ref="#/components/schemas/MobilePhone")
-     *         ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="No mobile phones to show",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message",type="string", example="There is no mobile phone to display for the moment.")
-     *          ),
-     *      ),
-     * )
-     * @Get(
-     *     path = "/api/mobiles",
-     *     name = "mobiles_show"
-     * )
-     * @View
-    */
-    public function showMobiles()
-    {
-        $mobiles = $this->getDoctrine()->getRepository('App:MobilePhone')->findAll();
-        return $mobiles;
-    }
-    
-    /**
-     * @OA\Get(
-     *      path="/api/mobile/{idMobile}",
-     *      description="Return the mobile phone whoom id is defined in parameter",
-     *      security={"bearer"},
-     *      @OA\Parameter(
-     *          name="idMobile",
-     *          in="path",
-     *          description="Id of the mobile phone wanted",
-     *          required=true,
-     *          @OA\Schema(type="integer")
-     *      ),
-     *      @OA\Response(
-     *         response=200,
-     *         description="Mobile's informations",
-     *         @OA\JsonContent(
-     *             type="array",
-     *             @OA\Items(ref="#/components/schemas/MobilePhone")
-     *         ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="This mobile doesn't exist",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message",type="string", example="Can't find a mobile with this id.")
-     *          ),
-     *      ),
-     * )
-     * @Get(
-     *     path = "/api/mobile/{idMobile}",
-     *     name = "mobile_show",
-     *     requirements = {"idMobile"="\d+"}
-     * )
-     * @View
-     */
-    public function showMobile($idMobile)
-    {
-        $mobile= $this->getDoctrine()->getRepository('App:MobilePhone')->findOneById($idMobile);
-        if ($mobile)
-        {
-            return $mobile;
-        }
-        return $this->view(null, Response::HTTP_NOT_FOUND);
-    }
-    
-    /**
-     * @OA\Get(
+     *      tags={"User"},
      *      path="/api/users",
      *      description="Return all the users you created",
      *      security={"bearer"},
@@ -126,19 +40,23 @@ class BileMoController extends AbstractFOSRestController{
      * )
      * @Get(
      *     path = "/api/users",
-     *     name = "users_client_show",
-     *     requirements = {"idClient"="\d+"}
+     *     name = "users_client_get",
      * )
      * @View
      */
-    public function showUsersClient()
+    public function getUsersClient()
     {
         $users = $this->getDoctrine()->getRepository('App:User')->findUsersByClient($this->getUser()->getId());
+        if (!$users)
+        {
+            return new JsonResponse(['Error' => 'No clients can be found!'], 404);
+        }
         return $users;
     }
     
     /**
      * @OA\Get(
+     *      tags={"User"},
      *      path="/api/user/{idUser}",
      *      description="Return the user whoom id is defined in parameter",
      *      security={"bearer"},
@@ -175,11 +93,16 @@ class BileMoController extends AbstractFOSRestController{
     public function showUserClient($idUser)
     {
         $user = $this->getDoctrine()->getRepository('App:User')->findUserById($idUser,$this->getUser()->getId());
+        if (!$user)
+        {
+            return new JsonResponse(['Error' => 'This user doesn\t exists !'], 404);
+        }
         return $user;
     }
     
     /**
      * @OA\Post(
+     *      tags={"User"},
      *      path="/api/user/add",
      *      description="Create a new user with datas submit",
      *      security={"bearer"},
@@ -204,16 +127,16 @@ class BileMoController extends AbstractFOSRestController{
      */
     public function addUser(User $user)
     {
-        
         $em = $this->getDoctrine()->getManager();
         $user->setClient($this->getUser());
         $em->persist($user);
         $em->flush();
-        return $this->view(null, Response::HTTP_CREATED);
+        return new JsonResponse(['Information' => 'User created with success'], 201);
     }
     
     /**
      * @OA\Delete(
+     *     tags={"User"},
      *     path="/api/user/delete/{idUser}",
      *     summary="Deletes a user with given id",
      *     security={"bearer"},
@@ -249,14 +172,16 @@ class BileMoController extends AbstractFOSRestController{
         $user = $this->getDoctrine()->getRepository('App:User')->find($idUser);
         if ($user)
         {
+            //Check if current client owns the user he wants to delete
+            if($user->getClient()->getId() == $this->getUser()->getId())
             {
                 $em->remove($user);
                 $em->flush(); 
-                return $this->view(null, Response::HTTP_NO_CONTENT);
+                return new JsonResponse(['Information' => 'User deleted with success'], 201);
             }
-            return $this->view(null, Response::HTTP_UNAUTHORIZED );
+            return new JsonResponse(['Information' => 'You can only delete users you own'], 403);
         }
-        return $this->view(null, Response::HTTP_NOT_FOUND);
+        return new JsonResponse(['Error' => 'This user doesn\t exists !'], 404);
     }
     
 }

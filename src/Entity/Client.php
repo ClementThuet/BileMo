@@ -145,6 +145,9 @@ class Client implements UserInterface
         return $this;
     }
 
+    function setPassword($password) {
+        $this->password = $password;
+    }
     /**
      * @see UserInterface
      */

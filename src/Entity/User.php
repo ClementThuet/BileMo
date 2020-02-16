@@ -32,6 +32,18 @@ class User
     private $password;
 
     /**
+     * @ORM\Column(type="string", length=255, nullable=true)
+     * @OA\Property(type="string", nullable=true)
+     */
+    private $adress;
+    
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     * @OA\Property(type="string", format="date-time", nullable=true)
+     */
+    private $birthDate;
+    
+    /**
      * @ORM\Column(type="datetime", nullable=false)
      * @OA\Property(type="string", format="date-time", nullable=false)
      */
@@ -74,6 +86,22 @@ class User
         $this->password = $password;
 
         return $this;
+    }
+    
+    function getAdress() {
+        return $this->adress;
+    }
+
+    function getBirthDate() {
+        return $this->birthDate;
+    }
+
+    function setAdress($adress) {
+        $this->adress = $adress;
+    }
+
+    function setBirthDate($birthDate) {
+        $this->birthDate = $birthDate;
     }
 
     public function getRegisteredAt()
