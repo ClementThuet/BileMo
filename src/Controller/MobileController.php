@@ -10,6 +10,7 @@ use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Entity\User;
 use OpenApi\Annotations as OA;
 
@@ -49,7 +50,7 @@ class MobileController extends AbstractFOSRestController{
         $mobiles = $this->getDoctrine()->getRepository('App:MobilePhone')->findAll();
         if (!$mobiles)
         {
-            return new JsonResponse(['error' => 'No mobiles can be found!'], 404);
+            throw new HttpException(404, "No mobiles can be found!");
         }
         return $mobiles;
         
@@ -96,7 +97,7 @@ class MobileController extends AbstractFOSRestController{
         $mobile= $this->getDoctrine()->getRepository('App:MobilePhone')->findOneById($idMobile);
         if (!$mobile)
         {
-            return new JsonResponse(['Error' => 'This mobile doesn\t exists !'], 404);
+            throw new HttpException(404, "This mobile doesn't exists !");
         }
         return $mobile;
     }
