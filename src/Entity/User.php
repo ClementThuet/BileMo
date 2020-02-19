@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use OpenApi\Annotations as OA;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @OA\Schema()
@@ -20,38 +21,45 @@ class User
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=100, nullable=false)
+     * @ORM\Column(type="string", length=100, nullable=false, unique=true)
      * @OA\Property(type="string", nullable=false)
+     * @Assert\NotBlank
+     * @Assert\Type("string")
+     * @Assert\Unique
      */
     private $email;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=false)
      * @OA\Property(type="string", nullable=false)
+     * @Assert\NotBlank 
+     * @Assert\Type("string")
      */
     private $password;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @OA\Property(type="string", nullable=true)
+     * @Assert\Type("string")
      */
     private $adress;
     
     /**
      * @ORM\Column(type="datetime", nullable=true)
      * @OA\Property(type="string", format="date-time", nullable=true)
+     * @Assert\Type("datetime")
      */
     private $birthDate;
     
     /**
      * @ORM\Column(type="datetime", nullable=false)
-     * @OA\Property(type="string", format="date-time", nullable=false)
      */
     private $registeredAt;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Client", inversedBy="users")
      * @ORM\JoinColumn(nullable=false)
+     * @Assert\NotNull 
      */
     private $client;
     

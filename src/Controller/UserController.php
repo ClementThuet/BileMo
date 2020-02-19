@@ -10,12 +10,18 @@ use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Entity\User;
+use App\Service\UserHelper;
 use OpenApi\Annotations as OA;
 
 
 class UserController extends AbstractFOSRestController{
    
+    
+    
     /**
      * @OA\Get(
      *      tags={"User"},
@@ -49,7 +55,7 @@ class UserController extends AbstractFOSRestController{
         $users = $this->getDoctrine()->getRepository('App:User')->findUsersByClient($this->getUser()->getId());
         if (!$users)
         {
-            return new JsonResponse(['Error' => 'No clients can be found!'], 404);
+            throw new HttpException(404, 'No clients can be found!');
         }
         return $users;
     }
@@ -95,7 +101,7 @@ class UserController extends AbstractFOSRestController{
         $user = $this->getDoctrine()->getRepository('App:User')->findUserById($idUser,$this->getUser()->getId());
         if (!$user)
         {
-            return new JsonResponse(['Error' => 'This user doesn\t exists !'], 404);
+            throw new HttpException(404, 'This user doesn\'t exists.');
         }
         return $user;
     }
@@ -112,6 +118,8 @@ class UserController extends AbstractFOSRestController{
      *              required={"email","password"},
      *              @OA\Property(type="string", property="email"),
      *              @OA\Property(type="string", property="password"),
+     *              @OA\Property(type="string", property="adress"),
+     *              @OA\Property(type="string", format="date-time", property="birthDate"),
      *          )
      *      ),
      *      @OA\Response(
@@ -125,12 +133,26 @@ class UserController extends AbstractFOSRestController{
      * @View(StatusCode = 201)
      * @ParamConverter("user", converter="fos_rest.request_body")
      */
-    public function addUser(User $user)
-    {
+    public function addUser(User $user,ValidatorInterface $validator)
+    {   
+        $userSubmited = new User();
+        //White spaces seems to not be an error to NotBlank
+        $userSubmited->setEmail($user->getEmail());
+        $userSubmited->setPassword($user->getPassword());
+        $userSubmited->setAdress($user->getAdress());
+        $userSubmited->setBirthDate($user->getBirthDate());
+        $userSubmited->setClient($this->getUser());
+        $errors = $validator->validate($userSubmited);
+        if (count($errors) > 0) {
+            $message = 'The JSON sent contains invalid data. Here are the error(s) you need to correct : ';
+            foreach ($errors as $violation) {
+                $message .= sprintf("Field %s: %s ", $violation->getPropertyPath(), $violation->getMessage());
+            }
+            throw new HttpException(400, $message);
+        }  
         $em = $this->getDoctrine()->getManager();
-        $user->setClient($this->getUser());
-        $em->persist($user);
-        $em->flush();
+        $em->persist($userSubmited);
+        //$em->flush();
         return new JsonResponse(['Information' => 'User created with success'], 201);
     }
     
@@ -164,10 +186,16 @@ class UserController extends AbstractFOSRestController{
      * )
      * @Delete(
      *          path="/api/user/delete/{idUser}",
-     *          name="user_delete")
+     *          name="user_delete"),
+     *          requirements = {"idUser"="\d+"}
      */
     public function deleteUser($idUser)
     {
+        /*  Always true because path parameters are string   
+        if (gettype($idUser) != "integer")
+        {
+            throw new HttpException(400, "Id must be an integer");
+        }*/
         $em = $this->getDoctrine()->getManager();
         $user = $this->getDoctrine()->getRepository('App:User')->find($idUser);
         if ($user)
@@ -179,9 +207,9 @@ class UserController extends AbstractFOSRestController{
                 $em->flush(); 
                 return new JsonResponse(['Information' => 'User deleted with success'], 201);
             }
-            return new JsonResponse(['Information' => 'You can only delete users you own'], 403);
+            throw new HttpException(403, "You can only delete users you own.");
         }
-        return new JsonResponse(['Error' => 'This user doesn\t exists !'], 404);
+        throw new HttpException(404, "This user doesn't exists !");
     }
     
 }

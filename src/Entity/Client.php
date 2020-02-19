@@ -6,6 +6,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ClientRepository")
@@ -21,6 +22,7 @@ class Client implements UserInterface
 
     /**
      * @ORM\Column(type="string", length=150, nullable=false, unique=true)
+     * @Assert\Unique
      */
     private $username;
 
@@ -30,7 +32,8 @@ class Client implements UserInterface
     private $fullname;
 
     /**
-     * @ORM\Column(type="string", length=200, nullable=false)
+     * @ORM\Column(type="string", length=200, nullable=false, unique=true)
+     * @Assert\Unique
      */
     private $email;
     

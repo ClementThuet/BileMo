@@ -43,7 +43,7 @@ class UserRepository extends ServiceEntityRepository
             ->andWhere('user.id = :idUser')
             ->setParameter('idUser', $idUser)
             ->setParameter('idClient', $idClient)
-            ->select('user.id, user.email, user.password, user.username, user.registeredAt')
+            ->select('user.id, user.email, user.password, user.registeredAt, user.adress, user.birthDate')
             ->getQuery()
             ->getResult()
         ;
@@ -55,7 +55,7 @@ class UserRepository extends ServiceEntityRepository
             ->innerJoin('user.client', 'c')
             ->where('c.id = :idClient')
             ->setParameter('idClient', $idClient)
-            ->select('user.id, user.email, user.password, user.username, user.registeredAt')
+            ->select('user.id, user.email, user.password, user.registeredAt, user.adress, user.birthDate')
             ->getQuery()
             ->getResult()
         ;
