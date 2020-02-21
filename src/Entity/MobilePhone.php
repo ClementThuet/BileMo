@@ -36,7 +36,7 @@ class MobilePhone
     private $modelName;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      * @OA\Property(type="string", nullable=true)
      * @Assert\Unique
      */

@@ -14,11 +14,14 @@ use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\Validator\Validation;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Entity\User;
+use App\Service\UserHelper;
 use OpenApi\Annotations as OA;
 
 
 class UserController extends AbstractFOSRestController{
    
+    
+    
     /**
      * @OA\Get(
      *      tags={"User"},
@@ -120,6 +123,8 @@ class UserController extends AbstractFOSRestController{
      *              required={"email","password"},
      *              @OA\Property(type="string", property="email"),
      *              @OA\Property(type="string", property="password"),
+     *              @OA\Property(type="string", property="adress"),
+     *              @OA\Property(type="string", format="date-time", property="birthDate"),
      *          )
      *      ),
      *      @OA\Response(
@@ -186,7 +191,8 @@ class UserController extends AbstractFOSRestController{
      * )
      * @Delete(
      *          path="/api/user/delete/{idUser}",
-     *          name="user_delete")
+     *          name="user_delete"),
+     *          requirements = {"idUser"="\d+"}
      */
     public function deleteUser($idUser)
     {

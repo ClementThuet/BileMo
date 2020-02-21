@@ -321,14 +321,14 @@
                         "type": "string",
                         "nullable": false
                     },
-                    "password": {
+                    "adress": {
                         "type": "string",
-                        "nullable": false
+                        "nullable": true
                     },
-                    "registeredAt": {
+                    "birthDate": {
                         "type": "string",
                         "format": "date-time",
-                        "nullable": false
+                        "nullable": true
                     }
                 },
                 "type": "object"

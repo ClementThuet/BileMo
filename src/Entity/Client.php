@@ -32,7 +32,7 @@ class Client implements UserInterface
     private $fullname;
 
     /**
-     * @ORM\Column(type="string", length=200, nullable=false)
+     * @ORM\Column(type="string", length=200, nullable=false, unique=true)
      * @Assert\Unique
      */
     private $email;

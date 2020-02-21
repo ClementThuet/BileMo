@@ -17,4 +17,4 @@ framework:
     serializer:
         enabled: true
         circular_reference_handler: App\Serializer\CircularReferenceHandler
-   
+    validation: { enabled: true }

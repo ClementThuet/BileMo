@@ -58,7 +58,6 @@ class User
     
     /**
      * @ORM\Column(type="datetime", nullable=false)
-     * @OA\Property(type="string", format="date-time", nullable=false)
      */
     private $registeredAt;
 
