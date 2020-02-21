@@ -52,7 +52,7 @@ class UserController extends AbstractFOSRestController{
      */
     public function getUsersClient()
     {
-        $users = $this->getDoctrine()->getRepository('App:User')->findUsersByClient($this->getUser()->getId());
+        $users = $this->getDoctrine()->getRepository('App:User')->findByClient($this->getUser());
         if (!$users)
         {
             throw new HttpException(404, 'No clients can be found!');
@@ -98,10 +98,15 @@ class UserController extends AbstractFOSRestController{
      */
     public function showUserClient($idUser)
     {
-        $user = $this->getDoctrine()->getRepository('App:User')->findUserById($idUser,$this->getUser()->getId());
+        $user = $this->getDoctrine()->getRepository('App:User')->findById($idUser);
         if (!$user)
         {
-            throw new HttpException(404, 'This user doesn\'t exists.');
+            throw new HttpException(404, "This user doesn't exists !");
+        }
+        //Check if current client owns the user he wants to delete
+        if($user[0]->getClient()->getId() !== $this->getUser()->getId())
+        {
+            throw new HttpException(403, "You can only get users you own.");
         }
         return $user;
     }
@@ -134,7 +139,7 @@ class UserController extends AbstractFOSRestController{
      * @ParamConverter("user", converter="fos_rest.request_body")
      */
     public function addUser(User $user,ValidatorInterface $validator)
-    {   
+    {
         $userSubmited = new User();
         //White spaces seems to not be an error to NotBlank
         $userSubmited->setEmail($user->getEmail());
@@ -204,7 +209,7 @@ class UserController extends AbstractFOSRestController{
             if($user->getClient()->getId() == $this->getUser()->getId())
             {
                 $em->remove($user);
-                $em->flush(); 
+                //$em->flush(); 
                 return new JsonResponse(['Information' => 'User deleted with success'], 201);
             }
             throw new HttpException(403, "You can only delete users you own.");

@@ -5,10 +5,16 @@ namespace App\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
 
 /**
  * @OA\Schema()
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @Hateoas\Relation("self", href = "expr('/api/user/' ~ object.getId())")
+ * @Hateoas\Relation("get_all", href = "expr('/api/users')")
+ * @Hateoas\Relation("add", href = "expr('/api/user/add')")
+ * @Hateoas\Relation("delete", href = "expr('/api/user/delete/' ~ object.getId())")
+ * 
  */
 class User
 {
@@ -24,8 +30,7 @@ class User
      * @ORM\Column(type="string", length=100, nullable=false, unique=true)
      * @OA\Property(type="string", nullable=false)
      * @Assert\NotBlank
-     * @Assert\Type("string")
-     * @Assert\Unique
+     * @Assert\Email
      */
     private $email;
 
