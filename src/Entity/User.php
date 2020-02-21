@@ -14,6 +14,10 @@ use Hateoas\Configuration\Annotation as Hateoas;
  * @Hateoas\Relation("get_all", href = "expr('/api/users')")
  * @Hateoas\Relation("add", href = "expr('/api/user/add')")
  * @Hateoas\Relation("delete", href = "expr('/api/user/delete/' ~ object.getId())")
+ * @Hateoas\Relation(
+ *     "client",
+ *     embedded = @Hateoas\Embedded("expr(object.getClient())")
+ * )
  * 
  */
 class User
