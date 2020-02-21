@@ -14,6 +14,7 @@ use App\Entity\User;
 use OpenApi\Annotations as OA;
 
 
+
 class MobileController extends AbstractFOSRestController{
    
     /**
@@ -96,7 +97,7 @@ class MobileController extends AbstractFOSRestController{
         $mobile= $this->getDoctrine()->getRepository('App:MobilePhone')->findOneById($idMobile);
         if (!$mobile)
         {
-            return new JsonResponse(['Error' => 'This mobile doesn\t exists !'], 404);
+            return new JsonResponse(['Error' => 'This mobile doesn\'t exists !'], 404);
         }
         return $mobile;
     }

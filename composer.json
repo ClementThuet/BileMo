@@ -23,7 +23,9 @@
         "symfony/serializer-pack": "*",
         "symfony/translation": "4.4.*",
         "symfony/twig-bundle": "4.4.*",
+        "symfony/validator": "4.4.*",
         "symfony/yaml": "4.4.*",
+        "willdurand/hateoas-bundle": "^1.4",
         "zircote/swagger-php": "^3.0"
     },
     "require-dev": {
