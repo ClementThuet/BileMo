@@ -20,8 +20,6 @@ use OpenApi\Annotations as OA;
 
 class UserController extends AbstractFOSRestController{
    
-    
-    
     /**
      * @OA\Get(
      *      tags={"User"},
@@ -103,7 +101,7 @@ class UserController extends AbstractFOSRestController{
         {
             throw new HttpException(404, "This user doesn't exists !");
         }
-        //Check if current client owns the user he wants to delete
+        //Check if current client owns the user he wants to get
         if($user[0]->getClient()->getId() !== $this->getUser()->getId())
         {
             throw new HttpException(403, "You can only get users you own.");
@@ -209,7 +207,7 @@ class UserController extends AbstractFOSRestController{
             if($user->getClient()->getId() == $this->getUser()->getId())
             {
                 $em->remove($user);
-                //$em->flush(); 
+                $em->flush(); 
                 return new JsonResponse(['Information' => 'User deleted with success'], 201);
             }
             throw new HttpException(403, "You can only delete users you own.");

@@ -13,7 +13,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Entity\User;
 use OpenApi\Annotations as OA;
-
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 
 class MobileController extends AbstractFOSRestController{
@@ -48,13 +48,19 @@ class MobileController extends AbstractFOSRestController{
     */
     public function getMobiles()
     {
-        $mobiles = $this->getDoctrine()->getRepository('App:MobilePhone')->findAll();
-        if (!$mobiles)
-        {
-            throw new HttpException(404, "No mobiles can be found!");
+        $cache = new FilesystemAdapter('',3000);
+        $cachedMobiles = $cache->getItem('mobiles');
+        if (!$cachedMobiles->isHit()) {
+            $mobiles = $this->getDoctrine()->getRepository('App:MobilePhone')->findAll();
+            if (!$mobiles)
+            {
+                throw new HttpException(404, "No mobiles can be found!");
+            }
+            $cachedMobiles->set(['mobiles'=>$mobiles]);
+            $cache->save($cachedMobiles);
+            return $mobiles;
         }
-        return $mobiles;
-        
+        return $cachedMobiles->get();
     }
     
     /**
