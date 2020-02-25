@@ -7,28 +7,37 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use App\Entity\User;
 use App\Entity\Client;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class BileMoFixtures extends Fixture
 {
+    private $passwordEncoder;
+     
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $this->passwordEncoder = $passwordEncoder;
+    }
+    
     public function load(ObjectManager $manager)
     {
         for ($i = 0; $i < 5; $i++) {
             $client = new Client();
             $client->setUsername('AdminSys'.$i.'@NotACompagny.com');
-            $client->setPassword('test');
+            $client->setPassword($this->passwordEncoder->encodePassword($client,'test'));
             $client->setFullname('Rebecca Front');
             $client->setEmail('AdminSys'.$i.'@NotACompagny.com');
             $manager->persist($client);
             
-            $user = new User();
-            $user->setEmail('JohnDoe'.$i.'@gmail.com');
-            $user->setPassword('test');
-            $user->setRegisteredAt(new \DateTime('now'));
-            $user->setClient($client);
-            $user->setAdress($i.' Victory road');
-            $user->setBirthDate(new \DateTime('26-12-1995'));
-            $manager->persist($user);
-            
+            for ($u = 0; $u < 5; $u++) {
+                $user = new User();
+                $user->setEmail('John'.$i.'Doe'.$u.'@gmail.com');
+                $user->setPassword('test');
+                $user->setRegisteredAt(new \DateTime('now'));
+                $user->setClient($client);
+                $user->setAdress($u.' Victory road');
+                $user->setBirthDate(new \DateTime('26-12-1995'));
+                $manager->persist($user);
+            }
             $mobile = new MobilePhone();
             $mobile->setModelName('Universe U'.$i);
             $mobile->setModelReference('849'.$i.'4849'.$i.'418'.$i.'85');
