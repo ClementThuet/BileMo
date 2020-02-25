@@ -38,7 +38,7 @@ class Client implements UserInterface
     private $email;
     
     /**
-     * @ORM\Column(type="string", length=50, nullable=false)
+     * @ORM\Column(type="string", length=200, nullable=false)
      */
     private $password;
     

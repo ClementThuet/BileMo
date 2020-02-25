@@ -13,7 +13,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Entity\User;
 use OpenApi\Annotations as OA;
-
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 
 class MobileController extends AbstractFOSRestController{
@@ -22,6 +22,7 @@ class MobileController extends AbstractFOSRestController{
      * @OA\Get(
      *      path="/api/mobiles",
      *      tags={"Mobile"},
+     *      summary="Return all mobiles phones",
      *      description="Return all mobiles phones availables",
      *      security={"bearer"},
      *      @OA\Response(
@@ -32,13 +33,6 @@ class MobileController extends AbstractFOSRestController{
      *             @OA\Items(ref="#/components/schemas/MobilePhone")
      *         ),
      *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="No mobile phones to show",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message",type="string", example="There is no mobile phone to display for the moment.")
-     *          ),
-     *      ),
      * )
      * @Get(
      *     path = "/api/mobiles",
@@ -48,19 +42,26 @@ class MobileController extends AbstractFOSRestController{
     */
     public function getMobiles()
     {
-        $mobiles = $this->getDoctrine()->getRepository('App:MobilePhone')->findAll();
-        if (!$mobiles)
-        {
-            throw new HttpException(404, "No mobiles can be found!");
+        $cache = new FilesystemAdapter('',60);
+        $cachedMobiles = $cache->getItem('mobiles');
+        if (!$cachedMobiles->isHit()) {
+            $mobiles = $this->getDoctrine()->getRepository('App:MobilePhone')->findAll();
+            if (!$mobiles)
+            {
+                return ['message'=>'No mobiles can be found '];
+            }
+            $cachedMobiles->set(['mobiles'=>$mobiles]);
+            $cache->save($cachedMobiles);
+            return $mobiles;
         }
-        return $mobiles;
-        
+        return $cachedMobiles->get();
     }
     
     /**
      * @OA\Get(
      *      path="/api/mobile/{idMobile}",
      *      tags={"Mobile"},
+     *      summary="Return a mobile phone by id",
      *      description="Return the mobile phone whoom id is defined in parameter",
      *      security={"bearer"},
      *      @OA\Parameter(

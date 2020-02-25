@@ -16,17 +16,16 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Entity\User;
 use App\Service\UserHelper;
 use OpenApi\Annotations as OA;
-
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 class UserController extends AbstractFOSRestController{
    
-    
-    
     /**
      * @OA\Get(
      *      tags={"User"},
      *      path="/api/users",
-     *      description="Return all the users you created",
+     *      summary="Return all users",
+     *      description="Return all users you created",
      *      security={"bearer"},
      *      @OA\Response(
      *         response=200,
@@ -52,18 +51,26 @@ class UserController extends AbstractFOSRestController{
      */
     public function getUsersClient()
     {
-        $users = $this->getDoctrine()->getRepository('App:User')->findByClient($this->getUser());
-        if (!$users)
-        {
-            throw new HttpException(404, 'No clients can be found!');
+        $cache = new FilesystemAdapter('',60);
+        $cachedUsers = $cache->getItem('users');
+        if (!$cachedUsers->isHit()) {
+            $users = $this->getDoctrine()->getRepository('App:User')->findByClient($this->getUser());
+            if (!$users)
+            {
+                return ['message'=>'No users can be found '];
+            }
+            $cachedUsers->set(['users'=>$users]);
+            $cache->save($cachedUsers);
+            return $users;
         }
-        return $users;
+        return $cachedUsers->get();
     }
     
     /**
      * @OA\Get(
      *      tags={"User"},
      *      path="/api/user/{idUser}",
+     *      summary="Return a user by id",
      *      description="Return the user whoom id is defined in parameter",
      *      security={"bearer"},
      *      @OA\Parameter(
@@ -101,9 +108,9 @@ class UserController extends AbstractFOSRestController{
         $user = $this->getDoctrine()->getRepository('App:User')->findById($idUser);
         if (!$user)
         {
-            throw new HttpException(404, "This user doesn't exists !");
+            throw new HttpException(404, 'This user doesn\'t exists');
         }
-        //Check if current client owns the user he wants to delete
+        //Check if current client owns the user he wants to get
         if($user[0]->getClient()->getId() !== $this->getUser()->getId())
         {
             throw new HttpException(403, "You can only get users you own.");
@@ -115,6 +122,7 @@ class UserController extends AbstractFOSRestController{
      * @OA\Post(
      *      tags={"User"},
      *      path="/api/user/add",
+     *      summary="Creates a user with given datas",
      *      description="Create a new user with datas submit",
      *      security={"bearer"},
      *      @OA\RequestBody(
@@ -138,14 +146,9 @@ class UserController extends AbstractFOSRestController{
      * @View(StatusCode = 201)
      * @ParamConverter("user", converter="fos_rest.request_body")
      */
-    public function addUser(User $user,ValidatorInterface $validator)
+    public function addUser(User $user,ValidatorInterface $validator, UserHelper $userHelper)
     {
-        $userSubmited = new User();
-        //White spaces seems to not be an error to NotBlank
-        $userSubmited->setEmail($user->getEmail());
-        $userSubmited->setPassword($user->getPassword());
-        $userSubmited->setAdress($user->getAdress());
-        $userSubmited->setBirthDate($user->getBirthDate());
+        $userSubmited = $userHelper->createUser($user);
         $userSubmited->setClient($this->getUser());
         $errors = $validator->validate($userSubmited);
         if (count($errors) > 0) {
@@ -157,7 +160,7 @@ class UserController extends AbstractFOSRestController{
         }  
         $em = $this->getDoctrine()->getManager();
         $em->persist($userSubmited);
-        //$em->flush();
+        $em->flush();
         return new JsonResponse(['Information' => 'User created with success'], 201);
     }
     
@@ -196,11 +199,6 @@ class UserController extends AbstractFOSRestController{
      */
     public function deleteUser($idUser)
     {
-        /*  Always true because path parameters are string   
-        if (gettype($idUser) != "integer")
-        {
-            throw new HttpException(400, "Id must be an integer");
-        }*/
         $em = $this->getDoctrine()->getManager();
         $user = $this->getDoctrine()->getRepository('App:User')->find($idUser);
         if ($user)
@@ -209,7 +207,7 @@ class UserController extends AbstractFOSRestController{
             if($user->getClient()->getId() == $this->getUser()->getId())
             {
                 $em->remove($user);
-                //$em->flush(); 
+                $em->flush(); 
                 return new JsonResponse(['Information' => 'User deleted with success'], 201);
             }
             throw new HttpException(403, "You can only delete users you own.");
