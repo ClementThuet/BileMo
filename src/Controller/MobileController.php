@@ -22,6 +22,7 @@ class MobileController extends AbstractFOSRestController{
      * @OA\Get(
      *      path="/api/mobiles",
      *      tags={"Mobile"},
+     *      summary="Return all mobiles phones",
      *      description="Return all mobiles phones availables",
      *      security={"bearer"},
      *      @OA\Response(
@@ -31,13 +32,6 @@ class MobileController extends AbstractFOSRestController{
      *             type="array",
      *             @OA\Items(ref="#/components/schemas/MobilePhone")
      *         ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="No mobile phones to show",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message",type="string", example="There is no mobile phone to display for the moment.")
-     *          ),
      *      ),
      * )
      * @Get(
@@ -67,6 +61,7 @@ class MobileController extends AbstractFOSRestController{
      * @OA\Get(
      *      path="/api/mobile/{idMobile}",
      *      tags={"Mobile"},
+     *      summary="Return a mobile phone by id",
      *      description="Return the mobile phone whoom id is defined in parameter",
      *      security={"bearer"},
      *      @OA\Parameter(

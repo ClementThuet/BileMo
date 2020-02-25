@@ -24,7 +24,8 @@ class UserController extends AbstractFOSRestController{
      * @OA\Get(
      *      tags={"User"},
      *      path="/api/users",
-     *      description="Return all the users you created",
+     *      summary="Return all users",
+     *      description="Return all users you created",
      *      security={"bearer"},
      *      @OA\Response(
      *         response=200,
@@ -69,6 +70,7 @@ class UserController extends AbstractFOSRestController{
      * @OA\Get(
      *      tags={"User"},
      *      path="/api/user/{idUser}",
+     *      summary="Return a user by id",
      *      description="Return the user whoom id is defined in parameter",
      *      security={"bearer"},
      *      @OA\Parameter(
@@ -120,6 +122,7 @@ class UserController extends AbstractFOSRestController{
      * @OA\Post(
      *      tags={"User"},
      *      path="/api/user/add",
+     *      summary="Creates a user with given datas",
      *      description="Create a new user with datas submit",
      *      security={"bearer"},
      *      @OA\RequestBody(
