@@ -26,6 +26,22 @@
                                 }
                             }
                         }
+                    },
+                    "204": {
+                        "description": "There is no mobile to show",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "There is no mobile to show for the moment."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     }
                 },
                 "security": [
@@ -110,7 +126,7 @@
                             }
                         }
                     },
-                    "404": {
+                    "204": {
                         "description": "There is no user to show",
                         "content": {
                             "application/json": {
