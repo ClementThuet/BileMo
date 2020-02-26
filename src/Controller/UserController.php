@@ -10,9 +10,13 @@ use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Symfony\Component\Validator\Validation;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use App\Entity\User;
+use App\Service\UserHelper;
 use OpenApi\Annotations as OA;
-
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 class UserController extends AbstractFOSRestController{
    
@@ -20,7 +24,8 @@ class UserController extends AbstractFOSRestController{
      * @OA\Get(
      *      tags={"User"},
      *      path="/api/users",
-     *      description="Return all the users you created",
+     *      summary="Return all users",
+     *      description="Return all users you created",
      *      security={"bearer"},
      *      @OA\Response(
      *         response=200,
@@ -31,7 +36,7 @@ class UserController extends AbstractFOSRestController{
      *         ),
      *      ),
      *      @OA\Response(
-     *          response=404,
+     *          response=204,
      *          description="There is no user to show",
      *          @OA\JsonContent(
      *              @OA\Property(property="message",type="string", example="There is no user to show for the moment.")
@@ -46,18 +51,26 @@ class UserController extends AbstractFOSRestController{
      */
     public function getUsersClient()
     {
-        $users = $this->getDoctrine()->getRepository('App:User')->findUsersByClient($this->getUser()->getId());
-        if (!$users)
-        {
-            return new JsonResponse(['Error' => 'No clients can be found!'], 404);
+        $cache = new FilesystemAdapter('',60);
+        $cachedUsers = $cache->getItem('users');
+        if (!$cachedUsers->isHit()) {
+            $users = $this->getDoctrine()->getRepository('App:User')->findByClient($this->getUser());
+            if (!$users)
+            {
+                return ['message'=>'No users can be found '];
+            }
+            $cachedUsers->set(['users'=>$users]);
+            $cache->save($cachedUsers);
+            return $users;
         }
-        return $users;
+        return $cachedUsers->get();
     }
     
     /**
      * @OA\Get(
      *      tags={"User"},
      *      path="/api/user/{idUser}",
+     *      summary="Return a user by id",
      *      description="Return the user whoom id is defined in parameter",
      *      security={"bearer"},
      *      @OA\Parameter(
@@ -92,10 +105,15 @@ class UserController extends AbstractFOSRestController{
      */
     public function showUserClient($idUser)
     {
-        $user = $this->getDoctrine()->getRepository('App:User')->findUserById($idUser,$this->getUser()->getId());
+        $user = $this->getDoctrine()->getRepository('App:User')->findById($idUser);
         if (!$user)
         {
-            return new JsonResponse(['Error' => 'This user doesn\t exists !'], 404);
+            throw new HttpException(404, 'This user doesn\'t exists');
+        }
+        //Check if current client owns the user he wants to get
+        if($user[0]->getClient()->getId() !== $this->getUser()->getId())
+        {
+            throw new HttpException(403, "You can only get users you own.");
         }
         return $user;
     }
@@ -104,6 +122,7 @@ class UserController extends AbstractFOSRestController{
      * @OA\Post(
      *      tags={"User"},
      *      path="/api/user/add",
+     *      summary="Creates a user with given datas",
      *      description="Create a new user with datas submit",
      *      security={"bearer"},
      *      @OA\RequestBody(
@@ -112,6 +131,8 @@ class UserController extends AbstractFOSRestController{
      *              required={"email","password"},
      *              @OA\Property(type="string", property="email"),
      *              @OA\Property(type="string", property="password"),
+     *              @OA\Property(type="string", property="adress"),
+     *              @OA\Property(type="string", format="date-time", property="birthDate"),
      *          )
      *      ),
      *      @OA\Response(
@@ -125,11 +146,20 @@ class UserController extends AbstractFOSRestController{
      * @View(StatusCode = 201)
      * @ParamConverter("user", converter="fos_rest.request_body")
      */
-    public function addUser(User $user)
+    public function addUser(User $user,ValidatorInterface $validator, UserHelper $userHelper)
     {
+        $userSubmited = $userHelper->createUser($user);
+        $userSubmited->setClient($this->getUser());
+        $errors = $validator->validate($userSubmited);
+        if (count($errors) > 0) {
+            $message = 'The JSON sent contains invalid data. Here are the error(s) you need to correct : ';
+            foreach ($errors as $violation) {
+                $message .= sprintf("Field %s: %s ", $violation->getPropertyPath(), $violation->getMessage());
+            }
+            throw new HttpException(400, $message);
+        }  
         $em = $this->getDoctrine()->getManager();
-        $user->setClient($this->getUser());
-        $em->persist($user);
+        $em->persist($userSubmited);
         $em->flush();
         return new JsonResponse(['Information' => 'User created with success'], 201);
     }
@@ -164,7 +194,8 @@ class UserController extends AbstractFOSRestController{
      * )
      * @Delete(
      *          path="/api/user/delete/{idUser}",
-     *          name="user_delete")
+     *          name="user_delete"),
+     *          requirements = {"idUser"="\d+"}
      */
     public function deleteUser($idUser)
     {
@@ -179,9 +210,9 @@ class UserController extends AbstractFOSRestController{
                 $em->flush(); 
                 return new JsonResponse(['Information' => 'User deleted with success'], 201);
             }
-            return new JsonResponse(['Information' => 'You can only delete users you own'], 403);
+            throw new HttpException(403, "You can only delete users you own.");
         }
-        return new JsonResponse(['Error' => 'This user doesn\t exists !'], 404);
+        throw new HttpException(404, "This user doesn't exists !");
     }
     
 }

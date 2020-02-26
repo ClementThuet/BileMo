@@ -4,10 +4,14 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use OpenApi\Annotations as OA;
+use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
 
 /**
  * @OA\Schema()
  * @ORM\Entity(repositoryClass="App\Repository\MobilePhoneRepository")
+ * @Hateoas\Relation("self", href = "expr('/api/mobile/' ~ object.getId())")
+ * @Hateoas\Relation("get_all", href = "expr('/api/mobiles')")
  */
 class MobilePhone
 {
@@ -32,8 +36,9 @@ class MobilePhone
     private $modelName;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, unique=true)
      * @OA\Property(type="string", nullable=true)
+     * @Assert\Unique
      */
     private $modelReference;
 

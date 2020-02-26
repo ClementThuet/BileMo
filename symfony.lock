@@ -105,6 +105,29 @@
     "jdorn/sql-formatter": {
         "version": "v1.2.17"
     },
+    "jms/metadata": {
+        "version": "1.7.0"
+    },
+    "jms/parser-lib": {
+        "version": "1.0.0"
+    },
+    "jms/serializer": {
+        "version": "1.14.0"
+    },
+    "jms/serializer-bundle": {
+        "version": "2.0",
+        "recipe": {
+            "repo": "github.com/symfony/recipes-contrib",
+            "branch": "master",
+            "version": "2.0",
+            "ref": "fe60ce509ef04a3f40da96e3979bc8d9b13b2372"
+        },
+        "files": [
+            "./config/packages/dev/jms_serializer.yaml",
+            "./config/packages/jms_serializer.yaml",
+            "./config/packages/prod/jms_serializer.yaml"
+        ]
+    },
     "lcobucci/jwt": {
         "version": "3.3.1"
     },
@@ -138,6 +161,9 @@
     "php": {
         "version": "7.1"
     },
+    "phpcollection/phpcollection": {
+        "version": "0.5.0"
+    },
     "phpdocumentor/reflection-common": {
         "version": "2.0.0"
     },
@@ -146,6 +172,9 @@
     },
     "phpdocumentor/type-resolver": {
         "version": "1.0.1"
+    },
+    "phpoption/phpoption": {
+        "version": "1.7.2"
     },
     "psr/cache": {
         "version": "1.0.1"
@@ -225,6 +254,9 @@
     },
     "symfony/event-dispatcher-contracts": {
         "version": "v1.1.7"
+    },
+    "symfony/expression-language": {
+        "version": "v4.4.4"
     },
     "symfony/filesystem": {
         "version": "v4.4.4"
@@ -427,6 +459,19 @@
             "./templates/base.html.twig"
         ]
     },
+    "symfony/validator": {
+        "version": "4.3",
+        "recipe": {
+            "repo": "github.com/symfony/recipes",
+            "branch": "master",
+            "version": "4.3",
+            "ref": "d902da3e4952f18d3bf05aab29512eb61cabd869"
+        },
+        "files": [
+            "./config/packages/test/validator.yaml",
+            "./config/packages/validator.yaml"
+        ]
+    },
     "symfony/var-dumper": {
         "version": "v4.4.4"
     },
@@ -455,6 +500,12 @@
     },
     "webmozart/assert": {
         "version": "1.6.0"
+    },
+    "willdurand/hateoas": {
+        "version": "2.12.0"
+    },
+    "willdurand/hateoas-bundle": {
+        "version": "1.4.0"
     },
     "willdurand/jsonp-callback-validator": {
         "version": "v1.1.0"

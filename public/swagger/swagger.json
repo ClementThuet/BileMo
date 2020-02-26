@@ -10,6 +10,7 @@
                 "tags": [
                     "Mobile"
                 ],
+                "summary": "Return all mobiles phones",
                 "description": "Return all mobiles phones availables",
                 "operationId": "App\\Controller\\MobileController::getMobiles",
                 "responses": {
@@ -26,15 +27,15 @@
                             }
                         }
                     },
-                    "404": {
-                        "description": "No mobile phones to show",
+                    "204": {
+                        "description": "There is no mobile to show",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "There is no mobile phone to display for the moment."
+                                            "example": "There is no mobile to show for the moment."
                                         }
                                     },
                                     "type": "object"
@@ -53,6 +54,7 @@
                 "tags": [
                     "Mobile"
                 ],
+                "summary": "Return a mobile phone by id",
                 "description": "Return the mobile phone whoom id is defined in parameter",
                 "operationId": "App\\Controller\\MobileController::getMobile",
                 "parameters": [
@@ -107,7 +109,8 @@
                 "tags": [
                     "User"
                 ],
-                "description": "Return all the users you created",
+                "summary": "Return all users",
+                "description": "Return all users you created",
                 "operationId": "App\\Controller\\UserController::getUsersClient",
                 "responses": {
                     "200": {
@@ -123,7 +126,7 @@
                             }
                         }
                     },
-                    "404": {
+                    "204": {
                         "description": "There is no user to show",
                         "content": {
                             "application/json": {
@@ -150,6 +153,7 @@
                 "tags": [
                     "User"
                 ],
+                "summary": "Return a user by id",
                 "description": "Return the user whoom id is defined in parameter",
                 "operationId": "App\\Controller\\UserController::showUserClient",
                 "parameters": [
@@ -204,6 +208,7 @@
                 "tags": [
                     "User"
                 ],
+                "summary": "Creates a user with given datas",
                 "description": "Create a new user with datas submit",
                 "operationId": "App\\Controller\\UserController::addUser",
                 "requestBody": {
@@ -221,6 +226,13 @@
                                     },
                                     "password": {
                                         "type": "string"
+                                    },
+                                    "adress": {
+                                        "type": "string"
+                                    },
+                                    "birthDate": {
+                                        "type": "string",
+                                        "format": "date-time"
                                     }
                                 },
                                 "type": "object"
@@ -325,10 +337,14 @@
                         "type": "string",
                         "nullable": false
                     },
-                    "registeredAt": {
+                    "adress": {
+                        "type": "string",
+                        "nullable": true
+                    },
+                    "birthDate": {
                         "type": "string",
                         "format": "date-time",
-                        "nullable": false
+                        "nullable": true
                     }
                 },
                 "type": "object"

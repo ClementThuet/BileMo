@@ -10,33 +10,36 @@ use FOS\RestBundle\Controller\Annotations\Post;
 use FOS\RestBundle\Controller\Annotations\Delete;
 use FOS\RestBundle\Controller\Annotations\View;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use App\Entity\User;
 use OpenApi\Annotations as OA;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 
 class MobileController extends AbstractFOSRestController{
    
     /**
      * @OA\Get(
-     *      path="/api/mobiles",
-     *      tags={"Mobile"},
-     *      description="Return all mobiles phones availables",
-     *      security={"bearer"},
-     *      @OA\Response(
-     *         response=200,
-     *         description="Mobiles",
-     *         @OA\JsonContent(
-     *             type="array",
-     *             @OA\Items(ref="#/components/schemas/MobilePhone")
-     *         ),
-     *      ),
-     *      @OA\Response(
-     *          response=404,
-     *          description="No mobile phones to show",
-     *          @OA\JsonContent(
-     *              @OA\Property(property="message",type="string", example="There is no mobile phone to display for the moment.")
-     *          ),
-     *      ),
+    *      path="/api/mobiles",
+    *      tags={"Mobile"},
+    *      summary="Return all mobiles phones",
+    *      description="Return all mobiles phones availables",
+    *      security={"bearer"},
+    *      @OA\Response(
+    *         response=200,
+    *         description="Mobiles",
+    *         @OA\JsonContent(
+    *             type="array",
+    *             @OA\Items(ref="#/components/schemas/MobilePhone")
+    *         ),
+    *      ),
+    *      @OA\Response(
+    *          response=204,
+    *          description="There is no mobile to show",
+    *          @OA\JsonContent(
+    *              @OA\Property(property="message",type="string", example="There is no mobile to show for the moment.")
+    *          ),
+    *      ),
      * )
      * @Get(
      *     path = "/api/mobiles",
@@ -46,19 +49,26 @@ class MobileController extends AbstractFOSRestController{
     */
     public function getMobiles()
     {
-        $mobiles = $this->getDoctrine()->getRepository('App:MobilePhone')->findAll();
-        if (!$mobiles)
-        {
-            return new JsonResponse(['error' => 'No mobiles can be found!'], 404);
+        $cache = new FilesystemAdapter('',60);
+        $cachedMobiles = $cache->getItem('mobiles');
+        if (!$cachedMobiles->isHit()) {
+            $mobiles = $this->getDoctrine()->getRepository('App:MobilePhone')->findAll();
+            if (!$mobiles)
+            {
+                return ['message'=>'No mobiles can be found '];
+            }
+            $cachedMobiles->set(['mobiles'=>$mobiles]);
+            $cache->save($cachedMobiles);
+            return $mobiles;
         }
-        return $mobiles;
-        
+        return $cachedMobiles->get();
     }
     
     /**
      * @OA\Get(
      *      path="/api/mobile/{idMobile}",
      *      tags={"Mobile"},
+     *      summary="Return a mobile phone by id",
      *      description="Return the mobile phone whoom id is defined in parameter",
      *      security={"bearer"},
      *      @OA\Parameter(
@@ -96,7 +106,7 @@ class MobileController extends AbstractFOSRestController{
         $mobile= $this->getDoctrine()->getRepository('App:MobilePhone')->findOneById($idMobile);
         if (!$mobile)
         {
-            return new JsonResponse(['Error' => 'This mobile doesn\t exists !'], 404);
+            throw new HttpException(404, "This mobile doesn't exists !");
         }
         return $mobile;
     }
