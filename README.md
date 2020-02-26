@@ -8,9 +8,9 @@ Code quality reviewed by Codacy :
 
 ### Requirements
 To install the project you will need :
-* An Apache server >=2.4
-* PHP >= 7.1
-* MySQL or another database of your choice<br> 
+  * An Apache server >=2.4
+  * PHP >= 7.1
+  * MySQL or another database of your choice<br> 
 
 I recommend to use WampServer as I did.
 
@@ -31,6 +31,7 @@ DATABASE_URL=mysql://root:@127.0.0.1:3306/BileMo
 Then you can create the database with : php bin/console doctrine:database:create
 
 You can now load fixtures to get nice products and users you can edit the way you like.
+
 ```
 php bin/console doctrine:fixtures:load
 ```
@@ -38,8 +39,7 @@ More information on Symfony's documentation : <https://symfony.com/doc/current/d
 
 That's all, you can now access to BileMo's API. Enjoy !
 
-
 ## Author
 **Clément Thuet**
-*  <https://www.linkedin.com/in/cl%C3%A9ment-thuet/>
-*  <https://github.com/ClementThuet/>
+  * <https://www.linkedin.com/in/cl%C3%A9ment-thuet/>
+  * <https://github.com/ClementThuet/>
