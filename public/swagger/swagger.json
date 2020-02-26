@@ -201,9 +201,41 @@
                 "security": [
                     "bearer"
                 ]
+            },
+            "delete": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Deletes a user with given id",
+                "operationId": "App\\Controller\\UserController::deleteUser",
+                "parameters": [
+                    {
+                        "name": "idUser",
+                        "in": "path",
+                        "description": "User id to delete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "User deleted with success"
+                    },
+                    "401": {
+                        "description": "You are not allowed to delete a user you didn't added"
+                    },
+                    "404": {
+                        "description": "User not found"
+                    }
+                },
+                "security": [
+                    "bearer"
+                ]
             }
         },
-        "/api/user/add": {
+        "/api/user": {
             "post": {
                 "tags": [
                     "User"
@@ -243,40 +275,6 @@
                 "responses": {
                     "201": {
                         "description": "User created"
-                    }
-                },
-                "security": [
-                    "bearer"
-                ]
-            }
-        },
-        "/api/user/delete/{idUser}": {
-            "delete": {
-                "tags": [
-                    "User"
-                ],
-                "summary": "Deletes a user with given id",
-                "operationId": "App\\Controller\\UserController::deleteUser",
-                "parameters": [
-                    {
-                        "name": "idUser",
-                        "in": "path",
-                        "description": "User id to delete",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "User deleted with success"
-                    },
-                    "401": {
-                        "description": "You are not allowed to delete a user you didn't added"
-                    },
-                    "404": {
-                        "description": "User not found"
                     }
                 },
                 "security": [

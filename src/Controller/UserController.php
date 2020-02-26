@@ -121,7 +121,7 @@ class UserController extends AbstractFOSRestController{
     /**
      * @OA\Post(
      *      tags={"User"},
-     *      path="/api/user/add",
+     *      path="/api/user",
      *      summary="Creates a user with given datas",
      *      description="Create a new user with datas submit",
      *      security={"bearer"},
@@ -141,7 +141,7 @@ class UserController extends AbstractFOSRestController{
      *      ),
      * )
      * @Post(
-     *      path="/api/user/add",
+     *      path="/api/user",
      *      name="user_add")
      * @View(StatusCode = 201)
      * @ParamConverter("user", converter="fos_rest.request_body")
@@ -167,7 +167,7 @@ class UserController extends AbstractFOSRestController{
     /**
      * @OA\Delete(
      *     tags={"User"},
-     *     path="/api/user/delete/{idUser}",
+     *     path="/api/user/{idUser}",
      *     summary="Deletes a user with given id",
      *     security={"bearer"},
      *     @OA\Parameter(
@@ -193,7 +193,7 @@ class UserController extends AbstractFOSRestController{
      *     ),
      * )
      * @Delete(
-     *          path="/api/user/delete/{idUser}",
+     *          path="/api/user/{idUser}",
      *          name="user_delete"),
      *          requirements = {"idUser"="\d+"}
      */
@@ -208,7 +208,7 @@ class UserController extends AbstractFOSRestController{
             {
                 $em->remove($user);
                 $em->flush(); 
-                return new JsonResponse(['Information' => 'User deleted with success'], 201);
+                return new JsonResponse(['Information' => 'User deleted with success'], 204);
             }
             throw new HttpException(403, "You can only delete users you own.");
         }
