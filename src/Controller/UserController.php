@@ -36,7 +36,7 @@ class UserController extends AbstractFOSRestController{
      *         ),
      *      ),
      *      @OA\Response(
-     *          response=404,
+     *          response=204,
      *          description="There is no user to show",
      *          @OA\JsonContent(
      *              @OA\Property(property="message",type="string", example="There is no user to show for the moment.")

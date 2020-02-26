@@ -20,19 +20,26 @@ class MobileController extends AbstractFOSRestController{
    
     /**
      * @OA\Get(
-     *      path="/api/mobiles",
-     *      tags={"Mobile"},
-     *      summary="Return all mobiles phones",
-     *      description="Return all mobiles phones availables",
-     *      security={"bearer"},
-     *      @OA\Response(
-     *         response=200,
-     *         description="Mobiles",
-     *         @OA\JsonContent(
-     *             type="array",
-     *             @OA\Items(ref="#/components/schemas/MobilePhone")
-     *         ),
-     *      ),
+    *      path="/api/mobiles",
+    *      tags={"Mobile"},
+    *      summary="Return all mobiles phones",
+    *      description="Return all mobiles phones availables",
+    *      security={"bearer"},
+    *      @OA\Response(
+    *         response=200,
+    *         description="Mobiles",
+    *         @OA\JsonContent(
+    *             type="array",
+    *             @OA\Items(ref="#/components/schemas/MobilePhone")
+    *         ),
+    *      ),
+    *      @OA\Response(
+    *          response=204,
+    *          description="There is no mobile to show",
+    *          @OA\JsonContent(
+    *              @OA\Property(property="message",type="string", example="There is no mobile to show for the moment.")
+    *          ),
+    *      ),
      * )
      * @Get(
      *     path = "/api/mobiles",
